@@ -1,0 +1,40 @@
+{
+    "name": "somnambulist/doctrine-enum-bridge",
+    "type": "library",
+    "description": "Allows any enumeration library to be used with Doctrine type system.",
+    "keywords": [
+        "doctrine",
+        "enumerations",
+        "ddd"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Dave Redfern",
+            "email": "dave@scorpioframework.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Somnambulist\\DoctrineEnumBridge\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Somnambulist\\Tests\\DoctrineEnumBridge\\": "tests/"
+        }
+    },
+    "require": {
+        "php": ">=7",
+        "doctrine/dbal": "^2.5"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~6.2",
+        "myclabs/php-enum": "^1.4",
+        "eloquent/enumeration": "5.1.*"
+    },
+    "config": {
+        "preferred-install": "dist",
+        "bin-dir": "bin"
+    }
+}
