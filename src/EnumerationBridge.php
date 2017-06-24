@@ -67,7 +67,7 @@ class EnumerationBridge extends Type
     public static function registerEnumTypes(array $types = [])
     {
         foreach ($types as $name => $callbacks) {
-            [$constructor, $serializer] = array_merge((array)$callbacks, [null]);
+            [$constructor, $serializer] = (is_array($callbacks) ? $callbacks : [$callbacks, null]);
 
             static::registerEnumType($name, $constructor, $serializer);
         }

@@ -10,6 +10,8 @@ use Somnambulist\DoctrineEnumBridge\EnumerationBridge;
 use Somnambulist\Tests\DoctrineEnumBridge\Enum\Action;
 use Somnambulist\Tests\DoctrineEnumBridge\Enum\Gender;
 use PHPUnit\Framework\TestCase;
+use Somnambulist\Tests\DoctrineEnumBridge\Helpers\Constructor;
+use Somnambulist\Tests\DoctrineEnumBridge\Helpers\Serializer;
 
 /**
  * Class EnumerationBridgeTest
@@ -93,6 +95,37 @@ class EnumerationBridgeTest extends TestCase
 
                 throw new \InvalidArgumentException(sprintf('"%s" not valid for "%s"', $value, Gender::class));
             },
+        ]);
+
+        /** @var Type $actionType */
+        $actionType = Type::getType(Action::class);
+        $this->assertInstanceOf(EnumerationBridge::class, $actionType);
+        $this->assertEquals(Action::class, $actionType->getName());
+
+        /** @var Type $actionType */
+        $genderType = Type::getType('gender');
+        $this->assertInstanceOf(EnumerationBridge::class, $genderType);
+        $this->assertEquals('gender', $genderType->getName());
+    }
+
+    /**
+     * @test
+     */
+    public function canAssignInvokableObjectInstances()
+    {
+        $this->assertFalse(Type::hasType(Action::class));
+        $this->assertFalse(Type::hasType(Gender::class));
+
+        EnumerationBridge::registerEnumTypes([
+            Action::class => function ($value) {
+                if (Action::isValid($value)) {
+                    return new Action($value);
+                }
+
+                throw new \InvalidArgumentException(sprintf('"%s" not valid for "%s"', $value, Action::class));
+            },
+            'gender' => [new Constructor(), new Serializer()],
+            'gender2' => new Constructor(),
         ]);
 
         /** @var Type $actionType */
