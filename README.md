@@ -33,45 +33,49 @@ The callbacks will receive:
 
 For example, in a Symfony project, in your AppBundle class:
 
-    class AppBundle extends Bundle
+```php
+class AppBundle extends Bundle
+{
+    public function boot()
     {
-        public function boot()
-        {
-            EnumerationBridge::registerEnumType(Action::class, function ($value) {
-                if (Action::isValid($value)) {
-                    return new Action($value);
-                }
-    
-                throw new InvalidArgumentException(sprintf(
-                    'The value "%s" is not valid for the enum "%s". Expected one of ["%s"]',
-                    $value,
-                    Action::class,
-                    implode('", "', Action::toArray())
-                ));
-            });
-        }
+        EnumerationBridge::registerEnumType(Action::class, function ($value) {
+            if (Action::isValid($value)) {
+                return new Action($value);
+            }
+
+            throw new InvalidArgumentException(sprintf(
+                'The value "%s" is not valid for the enum "%s". Expected one of ["%s"]',
+                $value,
+                Action::class,
+                implode('", "', Action::toArray())
+            ));
+        });
     }
+}
+```
     
 In Laravel, add to your AppServiceProvider (`register` and `boot` should both work):
 
-    class AppServiceProvider extends ServiceProvider
+```php
+class AppServiceProvider extends ServiceProvider
+{
+    public function boot()
     {
-        public function boot()
-        {
-            EnumerationBridge::registerEnumType(Action::class, function ($value) {
-                if (Action::isValid($value)) {
-                    return new Action($value);
-                }
-    
-                throw new InvalidArgumentException(sprintf(
-                    'The value "%s" is not valid for the enum "%s". Expected one of ["%s"]',
-                    $value,
-                    Action::class,
-                    implode('", "', Action::toArray())
-                ));
-            });
-        }
+        EnumerationBridge::registerEnumType(Action::class, function ($value) {
+            if (Action::isValid($value)) {
+                return new Action($value);
+            }
+
+            throw new InvalidArgumentException(sprintf(
+                'The value "%s" is not valid for the enum "%s". Expected one of ["%s"]',
+                $value,
+                Action::class,
+                implode('", "', Action::toArray())
+            ));
+        });
     }
+}
+```
 
 __Note:__ the bridge will check if the type has already been registered and skip it if that is
 the case. If you wish to replace an existing type then you should use `Type::overrideType()`,
@@ -83,45 +87,49 @@ Multiple enumerations can be registered at once by calling `registerEnumTypes()`
 array of enum name and either an array of callables (constructor, serializer) or just the 
 constructor:
 
-    class AppBundle extends Bundle
+```php
+class AppBundle extends Bundle
+{
+    public function boot()
     {
-        public function boot()
-        {
-            EnumerationBridge::registerEnumTypes(
-                [
-                    'gender' => [
-                        function ($value) {
-                            if (Gender::isValidValue($value)) {
-                                return Gender::memberByValue($value);
-                            }
-                
-                            throw new InvalidArgumentException(sprintf(
-                                'The value "%s" is not valid for the enum "%s"', $value, Gender::class
-                            ));
-                        },
-                        function ($value, $platform) {
-                            return is_null($value) ? 'default' : $value->value();
+        EnumerationBridge::registerEnumTypes(
+            [
+                'gender' => [
+                    function ($value) {
+                        if (Gender::isValidValue($value)) {
+                            return Gender::memberByValue($value);
                         }
-                    ]
+            
+                        throw new InvalidArgumentException(sprintf(
+                            'The value "%s" is not valid for the enum "%s"', $value, Gender::class
+                        ));
+                    },
+                    function ($value, $platform) {
+                        return is_null($value) ? 'default' : $value->value();
+                    }
                 ]
-            );
-        }
+            ]
+        );
     }
+}
+```
 
 #### Usage in Doctrine Mapping Files
 
 In your Doctrine mapping files simply set the type on the field:
 
-    fields:
-        name:
-            type: string
-            length: 255
-        
-        gender:
-            type: gender
-        
-        action:
-            type: AppBundle\Enumerable\Action
+```yaml
+fields:
+    name:
+        type: string
+        length: 255
+    
+    gender:
+        type: gender
+    
+    action:
+        type: AppBundle\Enumerable\Action
+```
 
 #### Share a Constructor
 
@@ -130,28 +138,30 @@ For enumerables that have the same signature / method names, a constructor calla
 To share a constructor callable, use the FQCN as the name of the enumerable or you could use a hash
 map of aliases to Enumerables:
 
-    class AppBundle extends Bundle
+```php
+class AppBundle extends Bundle
+{
+    public function boot()
     {
-        public function boot()
-        {
-            $constructor = function ($value, $class) {
-                if ($class::isValid($value)) {
-                    return new $class($value);
-                }
-            
-                throw new InvalidArgumentException(sprintf(
-                    'The value "%s" is not valid for the enum "%s". Expected one of ["%s"]',
-                    $value,
-                    $class,
-                    implode('", "', $class::toArray())
-               ));
+        $constructor = function ($value, $class) {
+            if ($class::isValid($value)) {
+                return new $class($value);
             }
         
-            EnumerationBridge::registerEnumType(Action::class, $constructor);
-            EnumerationBridge::registerEnumType(Country::class, $constructor);
-            EnumerationBridge::registerEnumType(Currency::class, $constructor);
+            throw new InvalidArgumentException(sprintf(
+                'The value "%s" is not valid for the enum "%s". Expected one of ["%s"]',
+                $value,
+                $class,
+                implode('", "', $class::toArray())
+           ));
         }
+    
+        EnumerationBridge::registerEnumType(Action::class, $constructor);
+        EnumerationBridge::registerEnumType(Country::class, $constructor);
+        EnumerationBridge::registerEnumType(Currency::class, $constructor);
     }
+}
+```
 
 Because each enumerable can be mapped to its own construct / serializer handlers, complex multitions
 from the Eloquent\Enumerable library can be handled by this bridge.
