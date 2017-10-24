@@ -14,6 +14,10 @@ class Constructor
 {
     public function __invoke($value)
     {
+        if (null === $value) {
+            return null;
+        }
+
         if (null !== $gender = Gender::memberOrNullByValue($value)) {
             return $gender;
         }

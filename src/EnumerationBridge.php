@@ -133,10 +133,6 @@ class EnumerationBridge extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null) {
-            return null;
-        }
-
         return ($this->constructor)($value, $this->name, $platform);
     }
 

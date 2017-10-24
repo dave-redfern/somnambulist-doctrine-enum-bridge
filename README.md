@@ -144,6 +144,11 @@ class AppBundle extends Bundle
     public function boot()
     {
         $constructor = function ($value, $class) {
+            // constructor method should handle nulls
+            if (is_null($value)) {
+                return null;
+            }
+        
             if ($class::isValid($value)) {
                 return new $class($value);
             }

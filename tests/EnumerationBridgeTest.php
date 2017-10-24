@@ -10,7 +10,9 @@ use Somnambulist\DoctrineEnumBridge\EnumerationBridge;
 use Somnambulist\Tests\DoctrineEnumBridge\Enum\Action;
 use Somnambulist\Tests\DoctrineEnumBridge\Enum\Gender;
 use PHPUnit\Framework\TestCase;
+use Somnambulist\Tests\DoctrineEnumBridge\Enum\NullableType;
 use Somnambulist\Tests\DoctrineEnumBridge\Helpers\Constructor;
+use Somnambulist\Tests\DoctrineEnumBridge\Helpers\NullableConstructor;
 use Somnambulist\Tests\DoctrineEnumBridge\Helpers\Serializer;
 
 /**
@@ -216,17 +218,27 @@ class EnumerationBridgeTest extends TestCase
      */
     public function convertToPHPValueWithNullReturnsNull()
     {
-        EnumerationBridge::registerEnumType(Action::class, function ($value) {
-            if (Action::isValid($value)) {
-                return new Action($value);
-            }
-
-            throw new \InvalidArgumentException(sprintf('"%s" not valid for "%s"', $value, Action::class));
-        });
+        EnumerationBridge::registerEnumType(Action::class, new Constructor());
 
         $type = Type::getType(Action::class);
         $value = $type->convertToPHPValue(null, $this->platform->reveal());
         $this->assertNull($value);
+    }
+
+    /**
+     * @test
+     */
+    public function convertToPHPValueWithNullValuesSupported()
+    {
+        EnumerationBridge::registerEnumType(NullableType::class, new NullableConstructor());
+
+        $type = Type::getType(NullableType::class);
+
+        /** @var NullableType $value */
+        $value = $type->convertToPHPValue(null, $this->platform->reveal());
+
+        $this->assertInstanceOf(NullableType::class, $value);
+        $this->assertNull($value->value());
     }
 
     /**
