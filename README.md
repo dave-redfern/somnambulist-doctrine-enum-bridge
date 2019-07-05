@@ -1,3 +1,7 @@
+# Moved to https://github.com/dave-redfern/somnambulist-domain
+
+This repository has been archived. Please update to the combined package.s
+
 ## Doctrine Enum Bridge
 
 Provides a bridge between different enumeration implementations and Doctrine. Any type of PHP
